@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shingrix Quiz Game</title>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.4.0/dist/confetti.browser.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    .quiz-container {
+      background-image: url('./bg2.jpg');
+      background-position: center;
+      background-attachment: fixed;
+      background-size: 100% 100%;
+      background-repeat: no-repeat;
+      width: 100%;
+      height: 100vh;
+      /* display: flex; */
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    .splash-screen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      /* background: rgba(0, 0, 0, 0.2); */
+      /* display: flex; */
+      /* flex-direction: column; */
+      justify-content: center;
+      align-items: center;
+      animation: fadeIn 2s ease-in-out;
+    }
+
+    .splash-screen h1 {
+      font-size: 4em;
+      
+      animation: textAnimation 2.5s ease-in-out; 
+      text-align: center;
+      /* width: 469px; */
+      margin: 0 3rem;
+      color: #000000;
+      font-family: 'Montserrat', serif;
+      font-weight: 700;
+      font-style: normal;
+
+      /* Bold weight for Montserrat */
+    }
+.Montserrat{
+  font-family: "Montserrat", serif;
+  font-optical-sizing: auto;
+  font-weight: 800;
+  font-style: normal;
+}
+
+    .play-button {
+      background: #a74428;
+      color: #fff;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      font-size: 2em;
+      cursor: pointer;
+    }
+
+    @keyframes textAnimation {
+      0% {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+
+      50% {
+        opacity: 0.5;
+        transform: scale(1.05);
+      }
+
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    .quiz-box {
+      padding: 20px;
+      border-radius: 10px;
+      width: 100%;
+      margin-top: 5rem;
+      /* max-width: 500px; */
+      display: none;
+      text-align: center;
+    }
+
+    .question {
+      border-radius: 10vw;
+    font-size: 3em;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: #D30B0B;
+    padding: 1vw 7vw;
+    }
+
+    .button-container {
+      /* margin-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center; */
+
+      display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    width: 60%;
+    justify-content: center;
+    align-items: center;
+    margin-top: 4rem;
+    margin-left: 19vw;
+    }
+
+    .button {
+    
+      padding: 15px 30px;
+  font-size: 2em;
+  font-weight: 600;
+
+  border: none;
+  background: transparent;
+  /* text-shadow: -2px -2px 0 black, 2px -2px 0 black, 2px 2px 0 black, 2px 2px 0 black; */
+  color: black;
+  border: 2px solid #fc8950;
+  border-radius: 20vw;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* width: 80%; 
+  margin: auto;  */
+}
+
+/* Hover Effect */
+.button:hover {
+  background-color: #ff4d00;
+  transform: scale(1.05);
+}
+
+/* Correct Answer */
+.button.correct {
+  background: rgb(2, 197, 2);
+  position: relative;
+}
+
+.button.correct::after {
+  content: "✔";
+  position: absolute;
+  right: 10px;
+  color: white;
+  font-size: 1.5em;
+    }
+
+    .button:hover {
+      background-color: #ff4d00;
+      transform: scale(1.05);
+    }
+
+    .button.correct {
+      background: rgb(2, 197, 2);
+      position: relative;
+    }
+
+    .button.correct::after {
+      content: "✔";
+      position: absolute;
+      right: 10px;
+      color: white;
+      font-size: 1.5em;
+    }
+
+    .button.wrong {
+      background: red;
+      position: relative;
+    }
+
+    .button.wrong::after {
+      content: "✘";
+      position: absolute;
+      right: 10px;
+      color: white;
+      font-size: 1.5em;
+    }
+
+    .question_counter {
+      display: flex;
+      justify-content: space-between;
+    color: #000000;
+      /* background-color: #ddd; */
+      font-size: 2rem;
+      font-weight: 900;
+    }
+
+    .result-screen {
+      /* margin-top: 7rem; */
+      padding: 2rem;
+      border-radius: 10px;
+      width: 100%;
+      /* max-width: 500px; */
+      display: none;
+      background: #0000;
+      background-color: rgba(0, 0, 0, 0);
+      color: white;
+      text-align: center;
+      /* background-color: #390f0f8c; */
+    }
+
+    .result-screen h2 {
+      /* font-size: 3em;
+      margin-bottom: 20px;
+      background-color: #e75032; */
+      color: #000000;
+      margin-top: 3rem;
+
+    }
+
+    .result-item {
+      border-bottom: 1px solid #ddd;
+      padding: 10px 0;
+    }
+
+    .result-item:last-child {
+      border-bottom: none;
+    }
+
+    .typed-out {
+      overflow: hidden;
+      border-right: .15em solid orange;
+      white-space: nowrap;
+      animation: typing 1s forwards;
+      font-size: 2.5rem;
+      width: 0;
+    }
+
+    @keyframes typing {
+      from {
+        width: 0
+      }
+
+      to {
+        width: 100%
+      }
+    }
+
+    .play-button-align {
+      /* padding-top: 10vh; */
+    }
+
+    .pushable {
+      /* background: #c26e00; */
+      border-radius: 2vw;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      padding-bottom: 7px;
+      outline-offset: 4px;
+       border: 3px solid  #D30B0B;
+       background: transparent;
+       
+    }
+
+    .front {
+    display: block;
+    padding: 12px 42px;
+    border-radius: 20vw;
+    font-size: 5rem;
+    font-weight: 900;
+      /* Text Outline Property */
+  /* text-shadow: -2px -2px 0 rgb(149, 136, 0), 2px -2px 0 rgb(149, 136, 0), 2px 2px 0 rgb(149, 136, 0),
+    2px 2px 0 rgb(149, 136, 0); */
+    /* text-shadow: 
+    -2px -2px 0 black,  
+     2px -2px 0 black,
+    -2px  2px 0 black,
+     2px  2px 0 black; */
+    /* background: #f6502e; */
+    /* background-image: linear-gradient(to bottom right,rgb(101, 0, 0), rgb(255, 30, 0), rgb(255, 21, 0)); */
+    /* color: white; */
+    /* border: 2px solid  #fc8950; */
+   
+    /* transform: translateY(-6px); */
+}
+    .pushable:active .front {
+      transform: translateY(-2px);
+    }
+
+    .counter_div{
+      /* background: #ffffff; */
+      display: none;
+      color: black;
+      padding: 1vw;
+    }
+    .score{
+      background-color: #F26526;
+    padding: 0.5vw 1vw;
+    border-radius: 10vw;
+    color: white;
+    }
+.headingalign{
+  margin-top: 15vh;
+}
+.play-button-align {
+    /* padding-top: 10vh; */
+    align-items: center;
+    justify-content: center;
+    display: flex
+;
+    padding-top: 20vh;
+}
+
+
+.trybutton {
+      /* background: #c26e00; */
+      border-radius: 4vw;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      padding-bottom: 7px;
+      outline-offset: 4px;
+       border: 3px solid  #D30B0B;
+       background: transparent;
+       
+    }
+    .back {
+    display: block;
+    padding: 12px 42px;
+    border-radius: 20vw;
+    font-size: 3rem;
+    font-weight: 500;
+}
+
+@media screen and (max-width: 1366px) {
+  .question {
+    border-radius: 10vw;
+    font-size: 2.5em;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: #D30B0B;
+    padding: 1vw 7vw;
+}
+.quiz-box {
+    padding: 20px;
+    border-radius: 10px;
+    width: 100%;
+    margin-top: 3.5rem;
+    /* max-width: 500px; */
+    display: none;
+    text-align: center;
+}
+.front {
+    display: block;
+    padding: 9px 30px;
+    border-radius: 20vw;
+    font-size: 5rem;
+    font-weight: 900;
+}
+}
+  </style>
+</head>
+
+<body class="quiz-container">
+  <!-- Navbar -->
+  <!-- <nav class="navbar" style="width: 100%; height: 20vh; display: flex; align-items: center; justify-content: center;">
+    <div class="buyer"><img style="width: 52rem;" src="logo-01.png" alt=""></div>
+  </nav> -->
+
+  <!-- Splash Screen -->
+  <div class="splash-screen" id="splashScreen">
+    <div class="headingalign">
+      <h1>ANSWER QUICK QUESTION</h1>
+    <h1><span style="color: #D30B0B; font-weight: 900;">ABOUT SHINGLES</span></h1>
+    </div>
+    
+     <!-- <img class="logosize" src="./Shingles-01.png" alt="" srcset=""> -->
+    <div class="play-button-align">
+      <button class="pushable" onclick="startQuiz()"><span class="front">
+          START NOW
+        </span></button>
+    </div>
+  </div>
+
+  <!-- Quiz Box -->
+  <div class="quiz-box" id="quizBox">
+    <div class="question_counter">
+      <div class="counter_div" ><span id="counter"></span></div>
+      <!-- <div class="score">SCORE: <span id="score">0</span></div> -->
+    </div>
+    <div id="question" class="question"></div>
+    <div id="options" class="button-container"></div>
+  </div>
+
+  <!-- Result Screen -->
+  <div class="result-screen" id="resultScreen">
+    <!-- <h2>Quiz Results</h2> -->
+    <div id="resultsContainer"></div>
+    <!-- <p style="padding-top: 61px; font-size: 4em;">Total Score: <span id="finalScore">0</span></p> -->
+     <div style="padding-top: 15vh;">
+      <button class="trybutton" onclick="startAgain()"><span class="back">
+       TRY AGAIN!
+      </span></button>
+     </div>
+  </div>
+
+
+  <div id="forRef" style="position: absolute;  bottom: 150px; left:50px; color: #000000;  font-weight: 500; ; padding-left: 1vw;" >
+  </div>
+
+  <footer style="position: absolute; width: 400px; bottom: 20px; left:50px; color: #000000; ">
+Full prescribing information is available on request.
+GlaxoSmithKline Pakistan Limited
+35-Dockyard Road, West Wharf, Karachi.
+Trademarks owned or licensed by GSK.
+©2025 GSK or licensor.
+Date of preparation: January 2025
+CL Code: PM-PK-SGX-QST-250001
+
+  </footer>
+
+  <script>
+    const quizData = [
+  {
+    "question": "Diabetes can increase the risk of Shingles and its complications by ______ percentage.",
+    "options": ["29%", "30%", "38%", "41%" ],
+    "correct": 3,
+    "reference": "Reference: 1) Huang C-T, Lee C-Y, Sung H-Y, et al. Association between diabetes mellitus and the risk of herpes zoster: a systematic review and meta-analysis. J Clin Endocrinol Metab. 2022;107(2):586–597. 2. Forbes HJ, Bhaskaran K, Thomas SL, et al. Quantification of risk factors for postherpetic neuralgia in herpes zoster patients: a cohort study. Neurology. 2016;87:94-102"
+  },
+  {
+    "question": "What is the efficacy of Shingrix against Shingles in individuals aged 50 years and older?",
+    "options": ["80%", "91%", "97%",  "100%"],
+    "correct": 2,
+    "reference": "Reference: SHINGRIX does not protect 100% of individuals vaccinated 1) GlaxoSmithKline. SHINGRIX European public assessment report, Annex l: Summary of product characteristics: EMA; [updated October 2021; accessed August 2022]. https://www.ema.europa.eu/en/documents/product-information/shingrix-epar-product-information_en.pdf"
+  },
+  {
+    "question": "How much does cardiovascular condition increase the risk of Shingles/Herpes Zoster?",
+    "options": ["34%", "39%", "38%", "41%"],
+    "correct": 1,
+    "reference": "Reference: 1)	Steinmann M, Lampe D, Grosser J, et al. Risk factors for herpes zoster infections: a systematic review and meta-analysis unveiling common trends and heterogeneity patterns. Infection. 2024. Epub ahead of print."
+  },
+  {
+    "question": "What is the efficacy of Shingrix in preventing Post-Herpetic Neuralgia (PHN) in individuals aged 50 years and older?",
+    "options": ["80%", "91%", "97%", "100%"],
+    "correct": 1,
+    "reference": "Reference: *SHINGRIX does not protect 100% of individuals vaccinated 1) Cunningham AL, Lal H, Kovac M, et al. Efficacy of the herpes zoster subunit vaccine in adults 70 years of age or older. N Engl J Med. 2016;375(11): 1019-1032"
+  },
+  {
+    "question": "By ______ percentage does Chronic Obstructive Pulmonary Disease (COPD) increase the risk of Shingles and its complications?",
+    "options": ["29%", "30%", "38%","41%"],
+    "correct": 3,
+    "reference": "Reference:1)	Marra F, Parhar K, Huang B, Vadlamudi N. Risk factors for herpes zoster infection: a meta-analysis. Open Forum Infect Dis. 2020;7(1):ofaa005. 2)	Forbes HJ, Bhaskaran K, Thomas SL, et al. Quantification of risk factors for postherpetic neuralgia in herpes zoster patients: a cohort study. Neurology, 2016’87:94-102."
+  },
+  {
+    "question": "Shingrix provides long-term protection for up to how many years?",
+    "options": ["5 years", "7 years", "10 years", "11 years"],
+    "correct": 3,
+    "reference": "Reference: SHINGRIX does not protect 100% of individuals vaccinated1)	Strezova A, Díez-Domingo J, Tinoco JC, et al. Adjuvanted recombinant zoster vaccine (RZV) is the first vaccine to provide durable protection against herpes zoster (HZ) in all age ranges ≥50 years: final analysis of efficacy and safety after 11 years (Y) of follow-up. Presented at: ECCMID 2024; 27–30 April 2024; Barcelona, Spain."
+  },
+  {
+    "question": "Chronic Kidney Disease (CKD) can increase the risk of Shingles and its complications by ______ percentage.",
+    "options": ["29%", "34%", "39%", "41%"],
+    "correct": 0,
+    "reference": "Reference: Pooled results from a meta-analysis of 18 risk factors for shingles across 88 observational studies (N=198,751,846 total, with 3,768,691 shingles cases) in patients aged 3 months to 104 years old (median age not reported); 18 studies estimating RR of shingles in patients with chronic kidney disease.3 Incidence rate or absolute risk not provided in publication. Controls varied between individual studies (general population or subjects without the disease). 1) Marra F, Parhar K, Huang B, Vadlamudi N. Risk factors for herpes zoster infection: a meta-analysis. Open Forum Infect Dis. 2020;7(1):ofaa005. 2)Lin SY, Liu JH, Lin CL, et al. A comparison of herpes zoster incidence across the spectrum of chronic kidney disease, dialysis and transplantation. Am J Nephrol. 2012;36:27–33."
+  },
+  {
+    "question": "Up to ______ percentage of Shingles patients develop Post-Herpetic Neuralgia.",
+    "options": ["25%", "35%", "30%", "40%"],
+    "correct": 2,
+    "reference": "Reference: 1)	Kawai, K., Gebremeskel, B. G., & Acosta, C. J. (2014). Systematic review of incidence and complications of herpes zoster: towards a global perspective. BMJ open, 4(6), e004833."
+  },
+  {
+    "question": "The risk of stroke is increased within 3 months of Shingles by ______ percentage:",
+    "options": ["29%", "30%", "34%", "38%"],
+    "correct": 2 ,
+    "reference": "Reference: 1) Erskine, N., Tran, H., Levin, L., Ulbricht, C., Fingeroth, J., Kiefe, C., ... & Singh, S. (2017). A systematic review and meta-analysis on herpes zoster and the risk of cardiac and cerebrovascular events. PLoS One, 12(7), e0181565.*Pooled odds ratio for fixed and random effects models from systematic review and meta-analysis of 12 studies, including 8 retrospective cohort studies and 3 self-controlled case series, examining a total of 7.9 million patients up to 28 years after shingles onset. Cerebrovascular events included: stroke (non-specified), ischaemic stroke, haemorrhagic stroke, transient ischaemic attack, and composite of stroke and transient ischaemic attack. Incidence rate or absolute risk not provided in publication."
+  },
+  // {
+  //   "question": "10. Which of the following statements is true regarding permanent cutaneous complications caused by shingles?",
+  //   "options": ["Only scarring occurs", "Only pigmentation changes occur", "Both scarring and pigmentation changes may occur", "Neither scarring nor pigmentation changes occur"],
+  //   "correct": 2,
+  //   "reference": "Reference: 1)  Harpaz R, Ortega-Sanchez IR, Seward JF. Prevention of herpes zoster: recommendations of the Advisory Committee on Immunization Practices (ACIP). MMWR Recomm Rep. 2008;57(RR-5):1–30 2)Forbes HJ, Bhaskaran K, Grint D, et al. Incidence of acute complications of herpes zoster among immunocompetent adults in England: a matched cohort study using routine health data. Br J Dermatol. 2021;184(6):1077–1084."
+  // },
+  {
+    "question": "Herpes Zoster Ophthalmicus (HZO) can cause permanent, moderate to severe vision loss in ______ fraction of patients?",
+    "options": ["1 in 5", "1 in 10", "1 in 15", "1 in 20"],
+    "correct": 1,
+    "reference": "Reference: Moderate vision loss (≤20/50) occurred in 170 eyes (19.8% of patients), of which 83 eyes (9.6%) were permanent loss due to HZO. Severe vision loss (≤20/200) occurred in 64 eyes (7.6% of patients), of which 31 (3.6%) were permanent loss due to HZO. 1) Niederer RL, Meyer JJ, Liu K, Danesh-Meyer HV. Herpes zoster ophthalmicus clinical presentation and risk factors for loss of vision. Am J Ophthalmol. 2021;226:83–89."
+  },
+  {
+    "question": "Shingrix is a non-live vaccine with _______ adjuvant system?",
+    "options": ["AS01B", "AS03", "AS02", "AS01A"],
+    "correct": 0,
+    "reference": "Reference: 1)	Shingrix Prescribing Information Version Number: GDS 08/IPI03 Date of Issue: 24 Feb. 2023"
+  },
+  // {
+  //   "question": "13. Age-related decline in immunity after 50 years increases the risk of Shingles and its complications. This is primarily due to which factor?",
+  //   "options": ["Decreased circulation" , "Higher stress levels", "Increased exposure to viruses", "Reduced immune response"],
+  //   "correct": 3,
+  //   "reference": "Reference: 1)Hales, C. M., Harpaz, R., Ortega-Sanchez, I., Bialek, S. R., & Centers for Disease Control and Prevention (CDC). (2014). Update on recommendations for use of herpes zoster vaccine. MMWR Morb Mortal Wkly Rep, 63(33), 729-31."
+  // },
+  {
+    "question": "What percentage of Shingles patients may experience permanent vision loss due to Herpes Zoster Ophthalmicus (HZO)?",
+    "options": ["3.6%", "5%", "7%", "9%" ],
+    "correct": 0,
+    "reference": "Reference: Moderate vision loss (≤20/50) occurred in 170 eyes (19.8% of patients), of which 83 eyes (9.6%) were permanent loss due to HZO. Severe vision loss (≤20/200) occurred in 64 eyes (7.6% of patients), of which 31 (3.6%) were permanent loss due to HZO. 1) Niederer RL, Meyer JJ, Liu K, Danesh-Meyer HV. Herpes zoster ophthalmicus clinical presentation and risk factors for loss of vision. Am J Ophthalmol. 2021;226:83–89."
+  },
+  {
+    "question": "Which vaccine is recommended by CDC for prevention of Shingles?",
+    "options": ["Pneumococcal Vaccine", "Shingrix", "Sinovax", "Cervarix"],
+    "correct": 1,
+    "reference": "Reference: 1)	Dooling KL, Guo A, Patel M, et al. Recommendations of the Advisory Committee on Immunization Practices for use of herpes zoster vaccines. MMWR 2018;67(2):103-108"
+  }
+]
+
+
+
+
+function startQuiz() {
+      document.getElementById("splashScreen").style.display = "none";
+      document.getElementById("quizBox").style.display = "block";
+   console.log("Current Question Index:", currentQuestionIndex);
+console.log("Selected Questions Length:", selectedQuestions.length);
+
+      loadQuestion();
+    }
+
+function shuffleArray(arr) {
+  return arr.sort(() => Math.random() - 0.5);
+}
+
+function getRandomQuestions(data, numQuestions = 5) {
+  // Add question numbers before shuffling
+  const numberedQuestions = data.map((question, index) => ({
+    ...question,
+    originalNumber: index + 1 // Store the original number
+  }));
+
+  const shuffledQuestions = shuffleArray(numberedQuestions);
+  return shuffledQuestions.slice(0, numQuestions);
+}
+
+// Get 5 random questions without shuffling options
+const selectedQuestions = getRandomQuestions(quizData);
+
+// Display the questions with options (for example purposes)
+selectedQuestions.forEach((question, index) => {
+  console.log(`Question ${index + 1} (Q${question.originalNumber}): ${question.question}`);
+  question.options.forEach((option, i) => {
+    console.log(`  ${i + 1}. ${option}`);
+  });
+});
+
+function loadQuestion() {
+  selected = false;
+  const currentQuestion = selectedQuestions[currentQuestionIndex];
+
+  // Update the counter to reflect original question number
+  document.getElementById("counter").textContent = `Q ${currentQuestion.originalNumber}/${quizData.length}`;
+
+  const optionsContainer = document.getElementById("options");
+  optionsContainer.innerHTML = "";
+
+  const questionElement = document.getElementById("question");
+  questionElement.classList.add("Montserrat");
+  questionElement.textContent = ""; // Clear previous question
+
+  // Display the reference text
+  document.getElementById("forRef").textContent = currentQuestion.reference;
+
+  // const questionText = `Q${currentQuestion.originalNumber}. ${currentQuestion.question}`;
+  const questionText = `Q${currentQuestionIndex+1}. ${currentQuestion.question}`;
+  let charIndex = 0;
+
+  function typeWriter() {
+    if (charIndex < questionText.length) {
+      questionElement.textContent += questionText.charAt(charIndex);
+      charIndex++;
+      setTimeout(typeWriter, 50);
+    } else {
+      loadOptions();
+    }
+  }
+  typeWriter();
+}
+
+let currentQuestionIndex = 0;
+    let selected = false;
+    let score = 0;
+    const questionScores = [];
+
+    function loadOptions() {
+  const currentQuestion = selectedQuestions[currentQuestionIndex]; // FIXED!
+  const optionsContainer = document.getElementById("options");
+
+  optionsContainer.innerHTML = ""; // Clear previous options
+
+  currentQuestion.options.forEach((option, index) => {
+    const optionButton = document.createElement("button");
+    optionButton.className = "button";
+    optionButton.textContent = option;
+    optionButton.onclick = () => selectAnswer(index);
+    optionsContainer.appendChild(optionButton);
+  });
+}
+
+
+function selectAnswer(selectedIndex) {
+  if (selected) return;
+  selected = true;
+
+  const options = document.querySelectorAll(".button");
+  const currentQuestion = selectedQuestions[currentQuestionIndex]; // FIXED!
+  const correctIndex = currentQuestion.correct;
+  let questionScore = 0;
+
+  if (selectedIndex === correctIndex) {
+    score += 100;
+    questionScore = 100;
+  }
+
+  questionScores.push({
+    question: currentQuestion.question,
+    selectedAnswer: currentQuestion.options[selectedIndex],
+    correctAnswer: currentQuestion.options[correctIndex],
+    score: questionScore,
+  });
+
+  options[selectedIndex].classList.add(selectedIndex === correctIndex ? "correct" : "wrong");
+  options[correctIndex].classList.add("correct");
+
+  setTimeout(() => {
+    currentQuestionIndex++;
+    if (currentQuestionIndex < selectedQuestions.length) { // FIXED!
+      loadQuestion();
+    } else {
+      displayResults();
+    }
+  }, 2000);
+}
+
+
+
+  function calculatePercentage() {
+  // Count the number of correct answers
+  let correctAnswers = questionScores.filter(q => q.score === 100).length;
+  let totalQuestions = selectedQuestions.length;
+
+
+  // Calculate the percentage
+  let percentage = Math.round((correctAnswers / totalQuestions) * 100);
+
+  return percentage;
+}
+
+function displayResults() {
+  document.getElementById("quizBox").style.display = "none";
+  document.getElementById("resultScreen").style.display = "block";
+
+  const resultsContainer = document.getElementById("resultsContainer");
+  resultsContainer.innerHTML = "";
+
+  let correctAnswers = questionScores.filter(q => q.score === 100).length;
+  let totalQuestions = selectedQuestions.length; // FIXED!
+
+  const scoreElement = document.createElement("h1");
+
+  scoreElement.innerHTML = `Your Score: <span style="color: red;">${correctAnswers}&nbsp;/&nbsp;${totalQuestions}</span>`;
+  scoreElement.style.fontSize = "3em";
+  scoreElement.style.textAlign = "center";
+  scoreElement.style.paddingTop = "10vw";
+  scoreElement.style.color = "black";
+
+  resultsContainer.appendChild(scoreElement);
+
+  const percentage = calculatePercentage();
+  const percentageElement = document.createElement("h2");
+  percentageElement.innerHTML = `( <span style="color: black; ">${percentage}%</span>)`;
+  percentageElement.style.fontSize = "3em";
+  percentageElement.style.textAlign = "center";
+  resultsContainer.appendChild(percentageElement);
+
+  triggerConfetti();
+}
+
+
+function startAgain() {
+  // Reset game variables
+  currentQuestionIndex = 0;
+  score = 0;
+  questionScores.length = 0;
+
+  // Hide result screen
+  document.getElementById("resultScreen").style.display = "none";
+
+  // Show quiz screen
+  document.getElementById("splashScreen").style.display = "block";
+
+  // Reset any UI elements (e.g., score display, progress bar, etc.)
+  document.getElementById("score").textContent = score;
+
+
+  // Optionally reinitialize the quiz logic
+  loadQuestion(); // Ensure this starts the first question
+}
+    
+
+    function resetGame() {
+      // Reset game variables
+      currentQuestionIndex = 0;
+      score = 0;
+      questionScores.length = 0;
+
+      // Hide result screen and show splash screen
+      document.getElementById("resultScreen").style.display = "none";
+      document.getElementById("splashScreen").style.display = "flex";
+
+      // Reset the score display
+      document.getElementById("score").textContent = score;
+    }
+
+    function triggerConfetti() {
+      document.getElementById("forRef").textContent = "";
+      confetti({
+        particleCount: 150,
+        spread: 200,
+        origin: { y: 0.6 }
+      });
+    }
+  </script>
+</body>
+
+</html>
